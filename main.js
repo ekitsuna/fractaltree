@@ -26,11 +26,10 @@ composer.addPass(bloomPass);
 let branches = [];
 let leaves = [];
 
-//CONSTANTS
-const maxDepth = 14; // how many recusions # DON'T PUT ABOVE 15, it will crash page
-const lengthFactor = 0.95; // % of how much each child branch's length from parent
-const maxRadius = 100; // length of each branch
-const initialLength = 15; // initial stem length
+const maxDepth = 20;
+const lengthFactor = 0.95;
+const maxRadius = 100;
+const initialLength = 15;
 
 function initTree() {
   const start = new THREE.Vector3(0, -40, 0);
@@ -93,7 +92,7 @@ function rebuildGeometry() {
   newGeometry.computeBoundingBox();
   const colorArray = new Float32Array(colors.length * 3);
   for (let i = 0; i < colors.length; i++) {
-    colorArray[i * 3 + 0] = colors[i].r;
+    colorArray[i * 3] = colors[i].r;
     colorArray[i * 3 + 1] = colors[i].g;
     colorArray[i * 3 + 2] = colors[i].b;
   }
@@ -111,10 +110,15 @@ function getCurrentRadius() {
 initTree();
 rebuildGeometry();
 
+let lastGrowthTime = 0;
+const growthInterval = 100;
+
 function animate() {
   requestAnimationFrame(animate);
+  const now = performance.now();
   const radius = getCurrentRadius();
-  if (radius < maxRadius && leaves.length > 0) {
+  if (radius < maxRadius && leaves.length > 0 && now - lastGrowthTime > growthInterval) {
+    lastGrowthTime = now;
     growOneIteration();
     rebuildGeometry();
   }
